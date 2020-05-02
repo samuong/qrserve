@@ -60,7 +60,7 @@ func main() {
 	path := "/" + uuid.New().String()
 	http.HandleFunc(path, handler)
 
-	url := "http://" + ip.String() + ":8080" + path
+	url := "http://" + net.JoinHostPort(ip.String(), "8080") + path
 	log.Print(url)
 	qrterminal.Generate(url, qrterminal.L, os.Stdout)
 
