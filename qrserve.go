@@ -15,6 +15,7 @@ func findAddr() (net.IP, error) {
 	var ipv6 net.IP
 	ifaces, err := net.Interfaces()
 	if err != nil {
+		log.Print(err)
 		return nil, err
 	}
 	for _, iface := range ifaces {
@@ -23,11 +24,13 @@ func findAddr() (net.IP, error) {
 		}
 		addrs, err := iface.Addrs()
 		if err != nil {
+			log.Print(err)
 			return nil, err
 		}
 		for _, addr := range addrs {
 			ip, _, err := net.ParseCIDR(addr.String())
 			if err != nil {
+				log.Print(err)
 				return nil, err
 			} else if ip.To4() != nil {
 				return ip, nil
@@ -42,13 +45,12 @@ func findAddr() (net.IP, error) {
 func handler(w http.ResponseWriter, req *http.Request) {
 	f, err := os.Open(os.Args[1])
 	if err != nil {
-		log.Print(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	defer f.Close()
 	info, err := f.Stat()
 	if err != nil {
-		log.Print(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
