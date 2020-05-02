@@ -10,26 +10,21 @@ import (
 	"github.com/google/uuid"
 	"github.com/mdp/qrterminal"
 )
-
-func findAddr() (net.IP, error) {
-	addrs, err := net.InterfaceAddrs()
+func findAddr(addrs []net.Addr, err error) (net.IP, error) {
 	if err != nil {
 		log.Print(err)
 		return nil, err
 	}
-	var ipv6 net.IP
 	for _, addr := range addrs {
 		ip, _, err := net.ParseCIDR(addr.String())
 		if err != nil {
 			log.Print(err)
 			return nil, err
-		} else if ip.To4() != nil {
+		} else if !ip.IsLoopback() && !ip.IsLinkLocalUnicast() {
 			return ip, nil
-		} else {
-			ipv6 = ip
 		}
 	}
-	return ipv6, nil
+	return nil, fmt.Errorf("couldn't find address of local host")
 }
 
 func handler(w http.ResponseWriter, req *http.Request) {
@@ -53,7 +48,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	ip, err := findAddr()
+	ip, err := findAddr(net.InterfaceAddrs())
 	if err != nil {
 		log.Fatal(err)
 	}
