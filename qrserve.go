@@ -44,7 +44,7 @@ func handler(w http.ResponseWriter, req *http.Request) {
 
 func main() {
 	if len(os.Args) != 2 {
-		fmt.Errorf("usage: %s file", os.Args[0])
+		fmt.Fprintf(os.Stderr, "usage: %s file\n", os.Args[0])
 		os.Exit(1)
 	}
 
