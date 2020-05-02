@@ -12,31 +12,21 @@ import (
 )
 
 func findAddr() (net.IP, error) {
-	var ipv6 net.IP
-	ifaces, err := net.Interfaces()
+	addrs, err := net.InterfaceAddrs()
 	if err != nil {
 		log.Print(err)
 		return nil, err
 	}
-	for _, iface := range ifaces {
-		if iface.Flags&net.FlagLoopback != 0 {
-			continue
-		}
-		addrs, err := iface.Addrs()
+	var ipv6 net.IP
+	for _, addr := range addrs {
+		ip, _, err := net.ParseCIDR(addr.String())
 		if err != nil {
 			log.Print(err)
 			return nil, err
-		}
-		for _, addr := range addrs {
-			ip, _, err := net.ParseCIDR(addr.String())
-			if err != nil {
-				log.Print(err)
-				return nil, err
-			} else if ip.To4() != nil {
-				return ip, nil
-			} else {
-				ipv6 = ip
-			}
+		} else if ip.To4() != nil {
+			return ip, nil
+		} else {
+			ipv6 = ip
 		}
 	}
 	return ipv6, nil
