@@ -6,10 +6,12 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"path"
 
 	"github.com/google/uuid"
 	"github.com/mdp/qrterminal"
 )
+
 func findAddr(addrs []net.Addr, err error) (net.IP, error) {
 	if err != nil {
 		log.Print(err)
@@ -52,10 +54,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	path := "/" + uuid.New().String()
-	http.HandleFunc(path, handler)
+	pattern := path.Join("/", uuid.New().String(), os.Args[1])
+	http.HandleFunc(pattern, handler)
 
-	url := "http://" + net.JoinHostPort(ip.String(), "8080") + path
+	url := "http://" + net.JoinHostPort(ip.String(), "8080") + pattern
 	log.Print(url)
 	qrterminal.Generate(url, qrterminal.L, os.Stdout)
 
