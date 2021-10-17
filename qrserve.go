@@ -66,7 +66,7 @@ func main() {
 	check(err)
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", *port),
-		Handler: h,
+		Handler: &logMiddleware{Handler: h},
 	}
 	ip, err := findAddr(net.InterfaceAddrs())
 	check(err)
